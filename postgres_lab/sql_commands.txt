@@ -1,0 +1,58 @@
+---Создание таблицы---
+
+CREATE TABLE Users ( 
+	userId integer not null,
+	userName varchar(64) not null,
+	email varchar(64) not null,
+	create_email date not null) 
+PARTITION BY RANGE (create_email);
+
+---Создание секций---
+
+CREATE TABLE Users_y2022m01 PARTITION OF Users
+    FOR VALUES FROM ('2022-01-01') TO ('2022-02-01');
+	
+CREATE TABLE Users_y2022m02 PARTITION OF Users
+    FOR VALUES FROM ('2022-02-01') TO ('2022-03-01');
+	
+CREATE TABLE Users_y2022m03 PARTITION OF Users
+    FOR VALUES FROM ('2022-03-01') TO ('2022-04-01');	
+	
+---Создание индексов---
+
+CREATE INDEX ON Users_y2022m01 (create_email);
+CREATE INDEX ON Users_y2022m02 (create_email);
+CREATE INDEX ON Users_y2022m03 (create_email);
+
+---Удаление секции (из главной таблицы)---
+
+ALTER TABLE Users DETACH PARTITION Users_y2022m03;
+
+---Добавление секции---
+
+CREATE TABLE Users_y2022m04
+  (LIKE Users INCLUDING DEFAULTS INCLUDING CONSTRAINTS);
+  
+ALTER TABLE Users_y2022m04 ADD CONSTRAINT y2022m04
+   CHECK ( create_email >= DATE '2022-04-01' AND create_email < DATE '2022-05-01' );
+   
+ALTER TABLE Users ATTACH PARTITION Users_y2022m04
+    FOR VALUES FROM ('2022-04-01') TO ('2022-05-01' );
+	
+---Вставка данных---
+
+INSERT INTO Users VALUES(1, 'name1', 'email1', '2022-01-01');
+INSERT INTO Users VALUES(2, 'name2', 'email2', '2022-01-02');
+INSERT INTO Users VALUES(3, 'name3', 'email3', '2022-01-03');
+INSERT INTO Users VALUES(4, 'name4', 'email4', '2022-04-01');
+
+---Выборка данных---
+SELECT * FROM Users_y2022m01;
+
+
+
+
+
+
+
+
