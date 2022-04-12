@@ -1,0 +1,10 @@
+//команды запуска zookeeper и kafka
+cd /d c:/kafka_2.13-3.1.0/bin/windows
+start zookeeper-server-start.bat c:\kafka_2.13-3.1.0\config\zookeeper.properties
+start kafka-server-start.bat c:\kafka_2.13-3.1.0\config\server.properties
+
+//команды для проверки корректной работы kafka
+cd c:/kafka_2.13-3.1.0/bin
+sh kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic test
+sh kafka-console-producer.sh --broker-list localhost:9092 --topic test
+sh kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
